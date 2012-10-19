@@ -22,7 +22,8 @@ def fork_to_ffmpeg(input_file, output_file)
   puts input_file
   puts output_file
   command = "ffmpeg -i #{input_file} -acodec aac -ac 2 -strict experimental -ab 160k -s 1024x768 -vcodec libx264 -preset slow -level 31 -maxrate 10000000 -bufsize 10000000 -b 1200k -f mp4 -threads 0 #{output_file}"
-  exec command
+puts command
+  #exec command
 end
 def ipad_file_name(input_file)
   filename = File.basename(input_file.downcase,".mkv")+".ipad.mp4"
