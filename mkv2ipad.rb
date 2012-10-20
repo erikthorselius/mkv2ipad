@@ -34,13 +34,7 @@ def fork_to_ffmpeg(input_file, output_file)
   puts "#{Time.now.ctime}: processing #{input_file}"
   Open3.popen3("ffmpeg", "-i", input_file, "-acodec", "aac", "-ac", "2", "-strict", "experimental","-ab","161k","-s","1024x768","-vcodec","libx264","-preset","slow","-level","31","-maxrate","10000000","-bufsize","10000000","-b","1200k","-f","mp4","-threads","0" , output_file) do |stdin, stdout, stderr, wait_thr|
     pid = wait_thr.pid # pid of the started process.
-    stdin.close_write
-    stdout.read.split("\n").each do |line|
-      puts "[ffmpeg] stdout: #{line}"
-    end
-    stderr.read.split("\n").each do |line|
-      puts "[ffmpeg] stderr: #{line}"
-    end
+    stdin.close
     exit_status = wait_thr.value # Process::Status object returned.
   end
 end
