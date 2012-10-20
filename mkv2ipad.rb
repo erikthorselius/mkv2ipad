@@ -46,5 +46,5 @@ def ipad_file_name(input_file)
   File.join(File.dirname(input_file),filename)
 end
 ARGV.each do |path|
-  find_mkv_files path
+  find_mkv_files File.realpath(path)
 end
