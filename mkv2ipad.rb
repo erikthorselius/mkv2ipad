@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'find'
+require 'open3'
 def find_mkv_files argv
   files = []
   Find.find(argv) do |path|
@@ -19,8 +20,14 @@ def find_mkv_files argv
 end
 
 def fork_to_ffmpeg(input_file, output_file) 
-  command = "ffmpeg -i #{input_file} -acodec aac -ac 2 -strict experimental -ab 160k -s 1024x768 -vcodec libx264 -preset slow -level 31 -maxrate 10000000 -bufsize 10000000 -b 1200k -f mp4 -threads 0 #{output_file}"
-  system(command)
+  options = "-i #{input_file} -acodec aac -ac 2 -strict experimental -ab 160k -s 1024x768 -vcodec libx264 -preset slow -level 31 -maxrate 10000000 -bufsize 10000000 -b 1200k -f mp4 -threads 0 outputfile"
+  Open3.popen3("ffmpeg", "-i", input_file, "-acodec", "aac", "-ac", "2", "-strict", "experimental","-ab","161k","-s","1024x768","-vcodec","libx264","-preset","slow","-level","31","-maxrate","10000000","-bufsize","10000000","-b","1200k","-f","mp4","-threads","0" , output_file) {|stdin, stdout, stderr, wait_thr|
+    pid = wait_thr.pid # pid of the started process.
+    stderr.each {|line|
+      puts line
+    }
+    exit_status = wait_thr.value # Process::Status object returned.
+  }
 end
 def ipad_file_name(input_file)
   filename = File.basename(input_file.downcase,".mkv")+".ipad.mp4"
