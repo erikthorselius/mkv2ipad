@@ -14,9 +14,7 @@ def find_mkv_files argv
       if File.extname(path).downcase == ".mkv"
         rm_if_to_small(path,ipad_file_name(path))
         unless File.exists? ipad_file_name(path)
-          #fork_to_ffmpeg(path,ipad_file_name(path))
-        else 
-          puts path
+          fork_to_ffmpeg(path,ipad_file_name(path))
         end
       end
     end
