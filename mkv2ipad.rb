@@ -12,15 +12,19 @@ def find_mkv_files argv
       end
     else
       if File.extname(path).downcase == ".mkv"
-        rm_if_exist(path,ipad_file_name(path))
-        fork_to_ffmpeg(path,ipad_file_name(path))
+        rm_if_to_small(path,ipad_file_name(path))
+        unless File.exists? ipad_file_name(path)
+          #fork_to_ffmpeg(path,ipad_file_name(path))
+        else 
+          puts path
+        end
       end
     end
   end
   files
 end
 
-def rm_if_exist(input_file, output_file) 
+def rm_if_to_small(input_file, output_file) 
   unless(File.size?(input_file).nil? or File.size?(output_file).nil?)
     if(File.size?(output_file) < File.size?(input_file)*0.15)
       puts "Remove output_file because it's to small"
