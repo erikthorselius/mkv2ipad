@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'find'
 require 'open3'
+require 'pty'
 def find_mkv_files argv
   files = []
   Find.find(argv) do |path|
@@ -32,10 +33,23 @@ def rm_if_to_small(input_file, output_file)
 end
 def fork_to_ffmpeg(input_file, output_file) 
   puts "#{Time.now.ctime}: processing #{input_file}"
-  Open3.popen3("ffmpeg", "-i", input_file, "-acodec", "aac", "-ac", "2", "-strict", "experimental","-ab","161k","-s","1024x768","-vcodec","libx264","-preset","slow","-level","31","-maxrate","10000000","-bufsize","10000000","-b","1200k","-f","mp4","-threads","0" , output_file) do |stdin, stdout, stderr, wait_thr|
-    pid = wait_thr.pid # pid of the started process.
-    exit_status = wait_thr.value # Process::Status object returned.
+  cmd = "ffmpeg -i #{input_file} -acodec aac -ac 2 -strict experimental -ab 160k -s 1024x768 -vcodec libx264 -preset slow -level 31 -maxrate 10000000 -bufsize 10000000 -b 1200k -f mp4 -threads 0 #{output_file}"
+  begin
+    PTY.spawn( "ffmpeg", "-i", input_file, "-acodec", "aac", "-ac", "2", "-strict", "experimental","-ab","161k","-s","1024x768","-vcodec","libx264","-preset","slow","-level","31","-maxrate","10000000","-bufsize","10000000","-b","1200k","-f","mp4","-threads","0" , output_file ) do |stdin, stdout, pid|
+      begin
+        # Do stuff with the output here. Just printing to show it works
+        stdin.each { |line| print line }
+      rescue Errno::EIO
+        puts "Errno:EIO error, but this probably just means " +
+          "that the process has finished giving output"
+      end
+    end
+  rescue PTY::ChildExited
+    puts "The child process exited!"
   end
+  #Open3.popen3("ffmpeg", "-i", input_file, "-acodec", "aac", "-ac", "2", "-strict", "experimental","-ab","161k","-s","1024x768","-vcodec","libx264","-preset","slow","-level","31","-maxrate","10000000","-bufsize","10000000","-b","1200k","-f","mp4","-threads","0" , output_file) do |stdin, stdout, stderr, wait_thr|
+  #pid = wait_thr.pid # pid of the started process.
+  #exit_status = wait_thr.value # Process::Status object returned.
 end
 def ipad_file_name(input_file)
   filename = File.basename(input_file,".mkv")+".ipad.mp4"
